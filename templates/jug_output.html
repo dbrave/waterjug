@@ -1,0 +1,27 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>Water Jug Calculator</title>
+    </head>
+    <body>
+        <h3><i>Using a {{ b1name }} and a {{ b2name }}, measure {{ goal }} gallon(s) of water.</i></h3>
+
+        <h2>Solution ({{ rows|length }} steps):</h2>
+        </hr>
+        <table>
+            <tr>
+                <th>Action</th>
+                <th>{{ b1name }} Contents</th> 
+                <th>{{ b2name }} Contents</th>
+            </tr>
+            {% for row in rows %}
+                <tr><td style="text-align:left">{{ row[0] }}</td><td style="text-align:center">{{ row[1][0] }}</td><td style="text-align:center">{{ row[1][1] }}</td></tr>
+            {% endfor %}
+       </table> 
+        <a href="/"><h2>Click here for another run</h2></a></br></br></br>
+        <i>If you found this program to be useful, you may want to consider hiring the author.</i>
+    </body>
+</html>
