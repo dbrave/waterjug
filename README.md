@@ -1,7 +1,6 @@
 # waterjug
 <h2>Water Jug problem</h2>
-Check out the repo </br>
-Create a virtualenv:
+cd into your virtualenv folder and create a virtualenv (alternatively you can use pipenv if you have it installed):
 <pre>
 python3 -m virtualenv flaskapp
 </pre>
@@ -9,6 +8,7 @@ Activate the virtualenv
 <pre>
 source $venv/flaskapp/bin/activate
 </pre>
+Check out the repo </br>
 Go into the waterjug folder and install the requirements
 <pre>
 cd waterjug
