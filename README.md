@@ -1,7 +1,7 @@
 # waterjug
 <h2>Water Jug problem</h2>
-Check out the repo
-create a virtualenv:
+Check out the repo </br>
+Create a virtualenv:
 <pre>
 python3 -m virtualenv flaskapp
 </pre>
@@ -22,7 +22,7 @@ Point your browser to http://localhost:5847
 <h2>Tests</h2>
 There is a small BASH script that checks for basic functionality. In a terminal, cd into the waterjug folder, and run:
 <pre>
- ./jugtests
+./jugtests
 </pre>
 <br>
 
