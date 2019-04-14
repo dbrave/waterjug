@@ -9,5 +9,5 @@ It listens on port 5847 (JUGS).</br></br>
 To run tests in a separate terminal
 <pre>
 make test
-</pre>
+</pre></br>
 Point a browser to http://localhost:5847 to use the application.
