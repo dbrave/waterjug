@@ -9,4 +9,4 @@ To run tests in a separate terminal
 <pre>
 make test
 </pre>
-
+Point a browser to http://localhost:5847.
