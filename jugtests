@@ -15,6 +15,7 @@ function jugtest {
         printf ": Test Failed\n"
     fi 
 }
+
 printf "Bucket capacity less than goal"
 jugtest 2 3 10 "You need bigger buckets to achieve desired amount."
 printf "Bucket 2 is 0"

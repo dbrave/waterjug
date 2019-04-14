@@ -35,6 +35,7 @@ def calculate():
         desired_amount = int(round(da))
     except ValueError:
         resp_data = ('Only numeric values are permitted.', 403)
+        return render_template('form_page.html', message=resp_data[0]), resp_data[1]
     #response_page = 'Ok'
     print('Bucket 1 is {} gallons'.format(bucket1))
     print('Bucket 2 is {} gallons'.format(bucket2))
