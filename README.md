@@ -1,28 +1,12 @@
 # waterjug
 <h2>Water Jug problem</h2>
-cd into your virtualenv folder and create a virtualenv (alternatively you can use pipenv if you have it installed):
+Build and Run Docker Container
 <pre>
-python3 -m virtualenv flaskapp
+sudo make
 </pre>
-Activate the virtualenv
+The application runs in the foreground so that you can see the console log output
+To run tests in a separate terminal
 <pre>
-source $venv/flaskapp/bin/activate
+make test
 </pre>
-Check out the repo </br>
-Go into the waterjug folder and install the requirements
-<pre>
-cd waterjug
-pip install -r requirements
-</pre>
-Fire it up!
-<pre>
-python waterjug.py
-</pre>
-Point your browser to http://localhost:5847
-<h2>Tests</h2>
-There is a small BASH script that checks for basic functionality. In a terminal, cd into the waterjug folder, and run:
-<pre>
-./jugtests
-</pre>
-<br>
 
