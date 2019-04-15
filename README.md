@@ -1,6 +1,6 @@
 # waterjug
 <h2>Water Jug problem</h2>
-Build and Run Docker Container
+Build image and run Docker container
 <pre>
 sudo make
 </pre>
