@@ -118,7 +118,7 @@ class WaterJug(object):
             log(self.steps)
             log(self.amounts)
             solver_sb=False
-        #Ignore this next line. It's not like I wrote the routine backwards or anything...     
+        #Save result and reset
         self.steps_sb=self.steps.copy()
         self.amounts_sb=self.amounts.copy()
         self.amounts = []
