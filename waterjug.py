@@ -4,8 +4,9 @@ Created on Apr 9, 2019
 
 @author: David Braverman
 '''
-from flask import Flask, request, render_template
-app = Flask(__name__)
+from flask import Flask, request, render_template, send_from_directory
+import sys
+app = Flask(__name__, static_folder='static')
 
 @app.route("/", methods=['GET'])
 def startup():
@@ -16,6 +17,16 @@ def startup():
     '''
     return render_template('form_page.html', message='''This application determines how to reach a desired 
                             amount of water using two buckets of specified sizes.''')
+
+@app.route('/favicon.ico', methods=['GET'])
+def favicon():
+    return send_from_directory(app.static_folder, 'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
+def log(output):
+    '''
+    print debug statements to stderr
+    '''
+    print(output, file=sys.stderr)
 
 @app.route("/calculate", methods=['GET'])
 def calculate():
@@ -37,9 +48,9 @@ def calculate():
         resp_data = ('Only numeric values are permitted.', 403)
         return render_template('form_page.html', message=resp_data[0]), resp_data[1]
     #response_page = 'Ok'
-    print('Bucket 1 is {} gallons'.format(bucket1))
-    print('Bucket 2 is {} gallons'.format(bucket2))
-    print('Desired Amount is {} gallons'.format(desired_amount))
+    log('Bucket 1 is {} gallons'.format(bucket1))
+    log('Bucket 2 is {} gallons'.format(bucket2))
+    log('Desired Amount is {} gallons'.format(desired_amount))
     # Check for some obvious stuff
     if bucket1 + bucket2 < desired_amount:
         resp_data = ('No Solution. You need bigger buckets to achieve desired amount.', 418)
@@ -90,10 +101,8 @@ class WaterJug(object):
         self.bucket1 = bucket1
         self.bucket2 = bucket2
         self.goal = goal
-        self.amounts_bs = []
-        self.amounts_sb = []
-        self.steps_bs = ['Both buckets are empty']
-        self.steps_sb = ['Both buckets are empty']
+        self.amounts = []
+        self.steps = ['Both buckets are empty']
         
     def Solve(self):
         '''
@@ -102,92 +111,69 @@ class WaterJug(object):
         solver_bs = True
         solver_sb = True
         try:
-            self.Solver_SB(0,0)
+            #self.Solver_SB(0,0)
+            self.Solver(0,0)
         except:
-            print('Exception occurred (SB):')
-            print(self.steps_sb)
-            print(self.amounts_sb)
+            log('Exception occurred (SB):')
+            log(self.steps)
+            log(self.amounts)
             solver_sb=False
         #Ignore this next line. It's not like I wrote the routine backwards or anything...     
+        self.steps_sb=self.steps.copy()
+        self.amounts_sb=self.amounts.copy()
+        self.amounts = []
+        self.steps = ['Both buckets are empty']
+        #Swap buckets
         self.bucket1, self.bucket2 = self.bucket2, self.bucket1
         try:
-            self.Solver_BS(0,0)
+            self.Solver(0,0)
         except:
-            print('Exception occurred (BS):')
-            print(self.steps_bs)
-            print(self.amounts_bs)
-            solver_bs = False 
-        
-        print(self.steps_sb)
-        print(self.steps_bs) 
+            log('Exception occurred (BS):')
+            log(self.steps)
+            log(self.amounts)
+            solver_bs = False
+        self.steps_bs=self.steps
+        self.amounts_bs=self.amounts
+             
+        #Some debug output for demonstration purposes
+        log('Small to Large is {} steps.'.format(len(self.steps_sb)))
+        log('Large to Small is {} steps.'.format(len(self.steps_bs))) 
         if len(self.steps_bs) < len(self.steps_sb) and solver_bs == True:
             return self.steps_bs, self.amounts_bs
         elif solver_sb == True:
             return self.steps_sb, self.amounts_sb
         else:
             return None, None
-        
-            
-    def Solver_SB(self, bucket1_contents, bucket2_contents):
+           
+    def Solver(self, bucket1_contents, bucket2_contents):
         '''
-        Solve by going from the smaller bucket to the larger bucket.
+        Recursive function to either go from small bucket to large, or vice versa.
         '''
-        self.amounts_sb.append((bucket1_contents, bucket2_contents))
-        if bucket2_contents == self.goal or bucket1_contents + bucket2_contents == self.goal:
-            self.steps_sb.append('Done!')
-            return
-        elif bucket2_contents == self.bucket2:
-            self.steps_sb.append('Empty {} gallon bucket and transfer {} gallon bucket content to it.'.format(self.bucket2, self.bucket1))
-            if bucket1_contents == 0:
-                print(self.steps_sb)
-                print(self.amounts_sb)
-                raise StandardError('Solution not possible')
-            self.Solver_SB(0, bucket1_contents)
-        elif bucket1_contents != 0 and bucket2_contents == 0:
-            self.steps_sb.append('Transfer {} gallon bucket content to {} gallon bucket'.format(self.bucket1, self.bucket2))
-            self.Solver_SB(0, bucket1_contents)
-        elif bucket1_contents == self.goal:
-            self.steps_sb.append('Empty {} gallon bucket'.format(self.bucket2))
-            self.Solver_SB(bucket1_contents, 0)
-        elif bucket1_contents < self.bucket1:
-            self.steps_sb.append('Fill {} gallon bucket'.format(self.bucket1))
-            self.Solver_SB(self.bucket1, bucket2_contents)
-        elif bucket1_contents < (self.bucket2-bucket2_contents):
-            self.steps_sb.append('Transfer {} gallon bucket content to {} gallon bucket'.format(self.bucket1, self.bucket2))
-            self.Solver_SB(0, (bucket1_contents+bucket2_contents))
-        else:
-            self.steps_sb.append('Transfer {} gallon bucket content to {} gallon bucket'.format(self.bucket1, self.bucket2))
-            self.Solver_SB(bucket1_contents-(self.bucket2-bucket2_contents), (self.bucket2-bucket2_contents)+bucket2_contents)
-    
-    def Solver_BS(self, bucket1_contents, bucket2_contents):
-        '''
-        Solve by going from the larger bucket to the smaller bucket.
-        '''
-        self.amounts_bs.append((bucket1_contents, bucket2_contents))
+        self.amounts.append((bucket1_contents, bucket2_contents))
         if bucket2_contents == self.goal or bucket1_contents + bucket2_contents == self.goal:
             return
         elif bucket2_contents == self.bucket2:
-            self.steps_bs.append('Empty {} gallon bucket'.format(self.bucket2))
+            self.steps.append('Empty {} gallon bucket'.format(self.bucket2))
             if bucket1_contents == 0:
                 raise StandardError('Solution not possible')
-            self.Solver_BS(bucket1_contents, 0)         
+            self.Solver(bucket1_contents, 0)         
         elif bucket1_contents != 0 and bucket1_contents < (self.bucket2-bucket2_contents):
-            self.steps_bs.append('Transfer {} gallon bucket content to {} gallon bucket'.format(self.bucket1, self.bucket2))
-            self.Solver_BS(0, (bucket1_contents+bucket2_contents))   
+            self.steps.append('Transfer {} gallon bucket content to {} gallon bucket'.format(self.bucket1, self.bucket2))
+            self.Solver(0, (bucket1_contents+bucket2_contents))   
         elif bucket1_contents != 0 and bucket2_contents == 0:
-            self.steps_bs.append('Transfer {} gallon bucket content to {} gallon bucket'.format(self.bucket1, self.bucket2))
-            self.Solver_BS(bucket1_contents-(self.bucket2-bucket2_contents), (self.bucket2-bucket2_contents)+bucket2_contents)
+            self.steps.append('Transfer {} gallon bucket content to {} gallon bucket'.format(self.bucket1, self.bucket2))
+            self.Solver(bucket1_contents-(self.bucket2-bucket2_contents), (self.bucket2-bucket2_contents)+bucket2_contents)
         elif bucket1_contents == self.goal:
-            self.steps_bs.append('Empty {} gallon bucket'.format(self.bucket2))
-            self.Solver_BS(self.bucket1_contents, 0)
+            self.steps.append('Empty {} gallon bucket'.format(self.bucket2))
+            self.Solver(self.bucket1_contents, 0)
         elif bucket1_contents < self.bucket1:
-            self.steps_bs.append('Fill {} gallon bucket'.format(self.bucket1))
-            self.Solver_BS(self.bucket1, bucket2_contents)
+            self.steps.append('Fill {} gallon bucket'.format(self.bucket1))
+            self.Solver(self.bucket1, bucket2_contents)
         else:
-            self.steps_bs.append('Transfer {} gallon bucket content to {} gallon bucket'.format(self.bucket1, self.bucket2))
-            self.Solver_BS(bucket1_contents-(self.bucket2-bucket2_contents), (self.bucket2-bucket2_contents)+bucket2_contents)
+            self.steps.append('Transfer {} gallon bucket content to {} gallon bucket'.format(self.bucket1, self.bucket2))
+            self.Solver(bucket1_contents-(self.bucket2-bucket2_contents), (self.bucket2-bucket2_contents)+bucket2_contents)
 
 
 if __name__ == '__main__':
-    print('Running on port JUGS (5847)')
+    log('Running on port JUGS (5847)')
     app.run(host='0.0.0.0', port=5847, debug=True, threaded=True)
