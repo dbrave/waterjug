@@ -10,5 +10,9 @@ To run tests in a separate terminal
 <pre>
 make test
 </pre></br>
+To remove old images and build artifacts
+<pre>
+sudo make clean
+</pre></br>
 Point a browser to http://localhost:5847 to use the application.
 
