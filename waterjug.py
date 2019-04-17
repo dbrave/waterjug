@@ -73,7 +73,9 @@ def calculate():
         return render_template('form_page.html', message=resp_data[0]), resp_data[1]
         
     jug = WaterJug(bucket1, bucket2, desired_amount)
-    steps, amounts = jug.Solve()
+    steps, amounts, method = jug.Solve()
+    if method == 'sb':
+        bucket1, bucket2 = bucket2, bucket1 
     if steps is not None:
         return render_template('jug_output.html', rows=list(zip(steps, amounts)), goal=desired_amount, 
                                 b1name='{} Gal. Bucket'.format(bucket1), b2name='{} Gal. Bucket'.format(bucket2)), 200
@@ -139,11 +141,11 @@ class WaterJug(object):
         log('Small to Large is {} steps.'.format(len(self.steps_sb)))
         log('Large to Small is {} steps.'.format(len(self.steps_bs))) 
         if len(self.steps_bs) < len(self.steps_sb) and solver_bs == True:
-            return self.steps_bs, self.amounts_bs
+            return self.steps_bs, self.amounts_bs, 'bs'
         elif solver_sb == True:
-            return self.steps_sb, self.amounts_sb
+            return self.steps_sb, self.amounts_sb, 'sb'
         else:
-            return None, None
+            return None, None, None
            
     def Solver(self, bucket1_contents, bucket2_contents):
         '''
