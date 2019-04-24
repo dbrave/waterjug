@@ -77,14 +77,13 @@ def calculate():
                                goal=desired_amount,
                                b1name='{} Gallon Bucket'.format(bucket1),
                                b2name='{} Gallon Bucket'.format(bucket2)), 200
-        
     #If there was an issue, tell the user and start over.
     if resp_data != '':
         return render_template('form_page.html',
                                message=resp_data[0]), resp_data[1]
 
     jug = WaterJug(bucket1, bucket2, desired_amount)
-    steps, amounts, bucket1, bucket2 = jug.Solve()
+    steps, amounts, bucket1, bucket2 = jug.water_jug_wrapper()
     if steps is not None:
         return render_template('jug_output.html',
                                rows=list(zip(steps, amounts)),
@@ -102,6 +101,10 @@ def gcd(a, b):
         return b
     return gcd(b % a, a)
 
+class BucketBug(Exception):
+    '''
+    Exception for bucket pouring error.
+    '''
 
 class WaterJug():
     '''
@@ -117,16 +120,16 @@ class WaterJug():
         self.amounts = []
         self.steps = ['Both buckets are empty']
 
-    def Solve(self):
+    def water_jug_wrapper(self):
         '''
         Wrapper
         '''
         solver_bs = True
         solver_sb = True
         try:
-            #self.Solver_SB(0,0)
-            self.Solver(0, 0)
-        except Exception:
+            #self.jug_solver_SB(0,0)
+            self.jug_solver(0, 0)
+        except BucketBug:
             log('Exception occurred (SB):')
             log(self.steps)
             log(self.amounts)
@@ -139,8 +142,8 @@ class WaterJug():
         try:
             #Swap buckets
             self.bucket1, self.bucket2 = self.bucket2, self.bucket1
-            self.Solver(0, 0)
-        except Exception:
+            self.jug_solver(0, 0)
+        except BucketBug:
             log('Exception occurred (BS):')
             log(self.steps)
             log(self.amounts)
@@ -157,7 +160,7 @@ class WaterJug():
             return self.steps_sb, self.amounts_sb, self.bucket2, self.bucket1
         return None, None, None
            
-    def Solver(self, bucket1_contents, bucket2_contents):
+    def jug_solver(self, bucket1_contents, bucket2_contents):
         '''
         Recursive function to either go from small bucket to large, or vice versa.
         '''
@@ -167,23 +170,24 @@ class WaterJug():
         elif bucket2_contents == self.bucket2:
             self.steps.append('Empty {} gallon bucket'.format(self.bucket2))
             if bucket1_contents == 0:
-                raise Exception('Solution not possible')
-            self.Solver(bucket1_contents, 0)         
+                raise BucketBug('Solution not possible')
+            self.jug_solver(bucket1_contents, 0)         
         elif bucket1_contents != 0 and bucket1_contents < (self.bucket2 - bucket2_contents):
             self.steps.append('Transfer {} gallon bucket content to {} gallon bucket'.format(self.bucket1, self.bucket2))
-            self.Solver(0, (bucket1_contents + bucket2_contents)) 
+            self.jug_solver(0, (bucket1_contents + bucket2_contents)) 
         elif bucket1_contents != 0 and bucket2_contents == 0:
             self.steps.append('Transfer {} gallon bucket content to {} gallon bucket'.format(self.bucket1, self.bucket2))
-            self.Solver(bucket1_contents-(self.bucket2 - bucket2_contents), (self.bucket2 - bucket2_contents) + bucket2_contents)
+            self.jug_solver(bucket1_contents-(self.bucket2 - bucket2_contents), (self.bucket2 - bucket2_contents) + bucket2_contents)
         elif bucket1_contents == self.goal:
             self.steps.append('Empty {} gallon bucket'.format(self.bucket2))
-            self.Solver(bucket1_contents, 0)
+            self.jug_solver(bucket1_contents, 0)
         elif bucket1_contents < self.bucket1:
             self.steps.append('Fill {} gallon bucket'.format(self.bucket1))
-            self.Solver(self.bucket1, bucket2_contents)
+            self.jug_solver(self.bucket1, bucket2_contents)
         else:
             self.steps.append('Transfer {} gallon bucket content to {} gallon bucket'.format(self.bucket1, self.bucket2))
-            self.Solver(bucket1_contents - (self.bucket2 - bucket2_contents), (self.bucket2 - bucket2_contents) + bucket2_contents)
+            self.jug_solver(bucket1_contents - (self.bucket2 - bucket2_contents),
+                            (self.bucket2 - bucket2_contents) + bucket2_contents)
 
 
 if __name__ == '__main__':
