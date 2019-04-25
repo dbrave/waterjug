@@ -59,15 +59,15 @@ def calculate():
     # Check for some obvious stuff
     if bucket1 + bucket2 < desired_amount:
         resp_data = ('No Solution. You need bigger buckets to achieve desired amount.', 418)
-    if desired_amount % gcd(bucket1, bucket2) != 0:
-        resp_data = ('No Solution. No way to achieve desired amount with specified buckets', 418)
-    if bucket1 < 1:
+    elif bucket1 < 1:
         resp_data = ('Bucket 1 must be greater than 0', 200)
-    if bucket2 < 1:
+    elif bucket2 < 1:
         resp_data = ('Bucket 2 must be greater than 0', 200)
-    if  desired_amount < 1:
+    elif  desired_amount < 1:
         resp_data = ('Desired amount must be greater than 0', 200)
-    if bucket1 + bucket2 == desired_amount:
+    elif desired_amount % gcd(bucket1, bucket2) != 0:
+        resp_data = ('No Solution. No way to achieve desired amount with specified buckets', 418)
+    elif bucket1 + bucket2 == desired_amount:
         amounts = [(0, 0), (bucket1, 0), (bucket1, bucket2)]
         steps = ['Both buckets are empty']
         steps.append('Fill {} gallon bucket'.format(bucket1))
@@ -159,7 +159,7 @@ class WaterJug():
         elif solver_sb:
             return self.steps_sb, self.amounts_sb, self.bucket2, self.bucket1
         return None, None, None
-           
+
     def jug_solver(self, bucket1_contents, bucket2_contents):
         '''
         Recursive function to either go from small bucket to large, or vice versa.
@@ -171,10 +171,10 @@ class WaterJug():
             self.steps.append('Empty {} gallon bucket'.format(self.bucket2))
             if bucket1_contents == 0:
                 raise BucketBug('Solution not possible')
-            self.jug_solver(bucket1_contents, 0)         
+            self.jug_solver(bucket1_contents, 0)
         elif bucket1_contents != 0 and bucket1_contents < (self.bucket2 - bucket2_contents):
             self.steps.append('Transfer {} gallon bucket content to {} gallon bucket'.format(self.bucket1, self.bucket2))
-            self.jug_solver(0, (bucket1_contents + bucket2_contents)) 
+            self.jug_solver(0, (bucket1_contents + bucket2_contents))
         elif bucket1_contents != 0 and bucket2_contents == 0:
             self.steps.append('Transfer {} gallon bucket content to {} gallon bucket'.format(self.bucket1, self.bucket2))
             self.jug_solver(bucket1_contents-(self.bucket2 - bucket2_contents), (self.bucket2 - bucket2_contents) + bucket2_contents)

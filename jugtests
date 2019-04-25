@@ -12,16 +12,16 @@ function jugtest {
     if [[ $PASS == 1 ]]; then
         printf ": Test Passed\n"
     else
-        printf ": Test Failed\n"
+	printf ": Test Failed (${PASS})\n"
     fi 
 }
 
 printf "Bucket capacity less than goal"
 jugtest 2 3 10 "You need bigger buckets to achieve desired amount."
 printf "Bucket 2 is 0"
-jugtest 3 0 5 "Bucket 2 must be greater than 0"
+jugtest 5 0 4 "Bucket 2 must be greater than 0"
 printf "Bucket 1 is 0"
-jugtest 0 3 5 "Bucket 1 must be greater than 0"
+jugtest 0 5 3 "Bucket 1 must be greater than 0"
 printf "Desired Amount is less than 0"
 jugtest 5 3 -4 "Desired amount must be greater than 0"
 printf "Happy path, small to big"
